@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SysdictionaryModel">
+
+	<cache eviction="LRU" type="com.wuyi.core.cache.redis.RedisCache"
+		size="8192" flushInterval="120000" />
+
+	<resultMap id="BaseResultMap" type="SysDictionaryDTO">
+		<id column="dictionary_type_id" jdbcType="INTEGER" property="id" />
+		<result column="dictionary_name" jdbcType="VARCHAR" property="name" />
+		<result column="dictionary_key" jdbcType="VARCHAR" property="key" />
+		<result column="dictionary_value" jdbcType="VARCHAR" property="value" />
+	</resultMap>
+
+	<select id="listAll" resultMap="BaseResultMap">
+		SELECT
+		`d`.`dictionary_type_id`,`t`.`dictionary_name`,
+		`d`.`dictionary_key`,`d`.`dictionary_value`
+		FROM
+		`sys_dictionary_type`
+		`t`
+		LEFT JOIN
+		`sys_dictionary_item` `d`
+		ON
+		`t`.`dictionary_type_id` =
+		`d`.`dictionary_type_id`
+		AND
+		`t`.`dictionary_status`=1
+		AND
+		`t`.`delete_flag`=${@com.wuyi.constant.DeleteConst@NORMAL}
+		AND
+		`d`.`delete_flag`=${@com.wuyi.constant.DeleteConst@NORMAL}
+		ORDER BY
+		`t`.`dictionary_type_id` ASC,
+		`d`.`sequence_no` ASC
+	</select>
+
+</mapper>

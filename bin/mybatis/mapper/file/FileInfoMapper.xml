@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="FileInfoModel">
+
+	<cache eviction="LRU" type="com.wuyi.core.cache.redis.RedisCache"
+		size="8192" flushInterval="120000" />
+
+	<resultMap id="BaseDTOMap" type="FileInfoDTO">
+		<result column="file_info_id" jdbcType="BIGINT" property="id" />
+		<result column="unique_id" jdbcType="VARCHAR" property="uniqueId" />
+		<result column="path" jdbcType="VARCHAR" property="path" />
+		<result column="type" jdbcType="VARCHAR" property="type" />
+		<result column="fingerprint" jdbcType="VARCHAR" property="fingerprint" />
+		<result column="size" jdbcType="BIGINT" property="size" />
+		<!-- 公共字段 -->
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+		<result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+		<result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+		<result column="delete_flag" jdbcType="INTEGER" property="deleteFlag" />
+		<result column="version" jdbcType="INTEGER" property="version" />
+	</resultMap>
+	<sql id="Table_Name">
+		`tbl_file_info`
+	</sql>
+	<sql id="Base_Column_List">
+		`file_info_id`, `unique_id`, `path`, `type`, `fingerprint`,
+		`size`
+	</sql>
+
+	<!-- 新增文件信息 -->
+	<insert id="save" parameterType="FileInfo">
+		INSERT INTO
+		<include refid="Table_Name"></include>
+		(
+		<include refid="Base_Column_List" />
+		,
+		<include refid="CommonModel.Common_Insert_Column" />
+		)
+		VALUES
+		(
+		#{id,jdbcType=BIGINT},
+		#{uniqueId,jdbcType=VARCHAR},
+		#{path,jdbcType=VARCHAR},
+		#{type,jdbcType=VARCHAR},
+		#{fingerprint,jdbcType=VARCHAR},
+		#{size,jdbcType=BIGINT}
+		,
+		<include refid="CommonModel.Common_Insert_Value" />
+		)
+	</insert>
+
+	<!-- 批量新增文件信息 -->
+	<insert id="batchBave" parameterType="FileInfo">
+		INSERT INTO
+		<include refid="Table_Name"></include>
+		(
+		<include refid="Base_Column_List" />
+		,
+		<include refid="CommonModel.Common_Insert_Column" />
+		)
+		VALUES
+		<foreach collection="list" item="common" separator=",">
+			(
+			#{common.id,jdbcType=BIGINT},
+			#{common.uniqueId,jdbcType=VARCHAR},
+			#{common.path,jdbcType=VARCHAR},
+			#{common.type,jdbcType=VARCHAR},
+			#{common.fingerprint,jdbcType=VARCHAR},
+			#{common.size,jdbcType=BIGINT}
+			,
+			<include refid="CommonModel.Common_Batch_Insert_Value" />
+			)
+		</foreach>
+	</insert>
+
+	<!-- 通过主键删除文件信息 -->
+	<update id="deleteById" parameterType="FileInfo">
+		UPDATE
+		<include refid="Table_Name"></include>
+		SET
+		<include refid="CommonModel.Common_Delete_Value"></include>
+		WHERE
+		`file_info_id` = #{id,jdbcType=BIGINT}
+		AND
+		<include refid="CommonModel.Common_Normal_Condition"></include>
+	</update>
+
+	<!-- 通过主键批量删除文件信息 -->
+	<update id="batchDeleteById">
+		UPDATE
+		<include refid="Table_Name"></include>
+		SET
+		<include refid="CommonModel.Common_Delete_Value"></include>
+		WHERE
+		`file_info_id`
+		IN
+		<foreach collection="list" item="id" open="(" separator=","
+			close=")">
+			#{id,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<!-- 通过主键更新文件信息 -->
+	<update id="updateById" parameterType="FileInfo">
+		UPDATE
+		<include refid="Table_Name"></include>
+		SET
+		`unique_id` = #{uniqueId,jdbcType=VARCHAR},
+		`path` =
+		#{path,jdbcType=VARCHAR},
+		`type` = #{type,jdbcType=VARCHAR},
+		`fingerprint` = #{fingerprint,jdbcType=VARCHAR},
+		`size` =
+		#{size,jdbcType=BIGINT}
+		,
+		<include refid="CommonModel.Common_Update_Value"></include>
+		WHERE
+		`file_info_id` = #{id,jdbcType=BIGINT}
+	</update>
+
+	<!-- 通过主键获取文件信息 -->
+	<select id="getById" parameterType="java.lang.Long" resultMap="BaseDTOMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="Table_Name"></include>
+		WHERE
+		`file_info_id` = #{id,jdbcType=BIGINT}
+		AND
+		<include refid="CommonModel.Common_Normal_Condition"></include>
+	</select>
+
+	<!-- 分页查询查询符合条件文件信息 -->
+	<select id="listByPage" parameterType="FileInfoQo" resultMap="BaseDTOMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		,
+		<include refid="CommonModel.Common_Column_List" />
+		FROM
+		<include refid="Table_Name"></include>
+		WHERE
+		<include refid="CommonModel.Common_Normal_Condition"></include>
+	</select>
+
+	<!-- 查询符合条件的文件信息数量 -->
+	<select id="count" parameterType="FileInfoQo" resultType="java.lang.Integer">
+		SELECT
+		COUNT(*)
+		FROM
+		<include refid="Table_Name"></include>
+		WHERE
+		<include refid="CommonModel.Common_Normal_Condition"></include>
+	</select>
+
+	<!-- 通过唯一识别符获取文件信息 -->
+	<select id="getByUniqueId" parameterType="java.lang.Long"
+		resultMap="BaseDTOMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM
+		<include refid="Table_Name"></include>
+		WHERE
+		`unique_id` = #{uniqueId,jdbcType=VARCHAR}
+		AND
+		<include refid="CommonModel.Common_Normal_Condition"></include>
+	</select>
+</mapper>

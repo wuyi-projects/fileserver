@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+        http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-4.2.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd">
+
+	<!-- 仅扫描控制器 -->
+	<context:component-scan base-package="com.wuyi.**"
+		use-default-filters="false">
+		<!-- 仅扫描控制器 -->
+		<context:include-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+
+	<!-- 激活注解模式，如@Controller -->
+	<mvc:annotation-driven>
+		<mvc:message-converters>
+			<ref bean="byteArrayHttpMessageConverter" />
+			<ref bean="stringHttpMessageConverter" />
+			<ref bean="gsonHttpMessageConverter" />
+			<ref bean="formHttpMessageConverter" />
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+	<!-- 启用默认Servlet,不过滤静态资源 -->
+	<mvc:default-servlet-handler />
+
+	<bean id="byteArrayHttpMessageConverter"
+		class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />
+
+	<bean id="stringHttpMessageConverter"
+		class="org.springframework.http.converter.StringHttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<list>
+				<value>text/html;charset=UTF-8</value>
+				<value>text/plain;charset=UTF-8</value>
+			</list>
+		</property>
+		<property name="writeAcceptCharset" value="false" />
+	</bean>
+
+	<bean id="gsonHttpMessageConverter"
+		class="org.springframework.http.converter.json.GsonHttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<list>
+				<value>application/json;charset=UTF-8</value>
+				<!--避免IE接收JSON出现下载文件 -->
+				<value>text/html;charset=UTF-8</value>
+			</list>
+		</property>
+		<property name="gson">
+			<bean class="org.springframework.http.converter.json.GsonFactoryBean">
+				<!-- 输出null，false则不输出null -->
+				<property name="serializeNulls" value="true" />
+				<!--不对html标签转码，false会导致所有html标签转码为 \ue300 格式 -->
+				<property name="disableHtmlEscaping" value="true" />
+				<!--格式化日期 -->
+				<property name="dateFormatPattern" value="yyyy-MM-dd" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="formHttpMessageConverter"
+		class="org.springframework.http.converter.FormHttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<list>
+				<value>application/x-www-form-urlencoded;charset=UTF-8</value>
+				<value>multipart/form-data</value>
+			</list>
+		</property>
+	</bean>
+
+	<!--视图解析器,请求"/"则不通过controller，直接解析为/index.jsp -->
+	<mvc:view-controller path="/" view-name="index" />
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+
+	<!-- 文件上传，如果没有使用文件上传可以不用配置 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 默认编码 -->
+		<property name="defaultEncoding" value="utf-8" />
+		<!-- 文件大小最大值 -->
+		<property name="maxUploadSize" value="10485760000" />
+		<!-- 内存中的最大值 -->
+		<property name="maxInMemorySize" value="40960" />
+	</bean>
+
+	<bean
+		class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+		<property name="favorPathExtension" value="true" />
+		<property name="favorParameter" value="true" />
+		<property name="ignoreAcceptHeader" value="true"></property>
+		<property name="defaultContentType" value="text/html" />
+		<property name="mediaTypes">
+			<map>
+				<!-- 告诉视图解析器，返回的类型为json格式 -->
+				<entry key="json" value="application/json" />
+				<entry key="xml" value="application/xml" />
+				<entry key="htm" value="text/htm" />
+				<entry key="file" value="application/octet-stream" />
+				<entry key="images" value="images/*" />
+			</map>
+		</property>
+	</bean>
+</beans>

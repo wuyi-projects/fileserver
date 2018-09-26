@@ -1,0 +1,68 @@
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'eclipse-wtp'
+apply plugin: 'com.bmuschko.tomcat'
+
+repositories {
+    jcenter()
+}
+
+// 指定Java编译版本，兼容jdbc6.0,java版本必须为1.8
+sourceCompatibility=1.8
+targetCompatibility=1.8
+
+dependencies {   
+
+    testCompile 'junit:junit:4.12' 
+    //providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
+
+   
+    // 引入公共项目
+    compile project(':wuyi_common')
+    
+    compile 'commons-net:commons-net:3.6'
+}
+
+
+dependencies {
+    def tomcatVersion = '8.0.27'
+
+    tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
+           "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
+           "org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
+}
+
+buildscript {
+
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-tomcat-plugin:2.2.2'
+    }
+}
+
+//编译JAVA文件时采用UTF-8
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+//编译JAVA文件时采用UTF-8
+//tasks.withType(JavaCompile) {  
+//    options.encoding = "UTF-8"  
+//}
+
+//编译groovy代码时采用 UTF-8
+tasks.withType(GroovyCompile) {   
+    groovyOptions.encoding = "MacRoman"   
+}
+
+// 生成javadoc编码设置
+javadoc {
+    options{
+        encoding "UTF-8"
+        charSet 'UTF-8'
+        author true
+        version true
+        // links "http://docs.wuyi.com/javase/7/docs/api"
+        // title "文档标题"
+    }
+}

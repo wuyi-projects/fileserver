@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	id="WebApp_ID" version="3.0">
+	<display-name>wuyi_file</display-name>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+	<servlet-mapping>
+		<servlet-name>default</servlet-name>
+		<url-pattern>*.js</url-pattern>
+		<url-pattern>*.css</url-pattern>
+		<!-- <url-pattern>/assets/*"</url-pattern> -->
+		<url-pattern>*.png</url-pattern>
+		<url-pattern>*.jpg</url-pattern>
+	</servlet-mapping>
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:spring/spring-*.xml</param-value>
+	</context-param>
+
+	<!-- 编码过滤器 -->
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<!-- spring mvc -->
+	<!-- 默认情况，Spring MVC会在WEB-INF寻找 dispacher-servlet.xml -->
+	<servlet>
+		<servlet-name>dispatcher</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<!-- 表示启动容器时初始化该servlet -->
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath:springmvc/spring-mvc*.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>dispatcher</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+
+	<!-- 防止Spring内存溢出监听器 -->
+	<listener>
+		<listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
+	</listener>
+
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+	<!-- 数据字典初始化监听器 -->
+	<listener>
+		<listener-class>com.wuyi.core.listener.sysdictionary.InitSysDictListener</listener-class>
+	</listener>
+
+	<!-- shiro 安全过滤器 -->
+	<filter>
+		<filter-name>shiroFilter</filter-name>
+		<!--spring调用shiro代理 -->
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+		<async-supported>true</async-supported>
+		<init-param>
+			<!--是否开启Filter的生命周期，主要涉及init和destory -->
+			<param-name>targetFilterLifecycle</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>shiroFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+</web-app>

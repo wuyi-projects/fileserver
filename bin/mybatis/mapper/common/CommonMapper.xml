@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CommonModel">
+	<sql id="Common_Insert_Column">
+		`create_time`,`create_user_id`,`delete_flag`,`version`
+	</sql>
+	<sql id="Common_Insert_Value">
+		#{createTime,jdbcType=TIMESTAMP},
+		#{createUserId,jdbcType=BIGINT},
+		${@com.wuyi.constant.DeleteConst@NORMAL},
+		#{version,jdbcType=INTEGER}
+	</sql>
+	<sql id="Common_Batch_Insert_Value">
+		#{common.createTime,jdbcType=TIMESTAMP},
+		#{common.createUserId,jdbcType=BIGINT},
+		${@com.wuyi.constant.DeleteConst@NORMAL},
+		#{common.version,jdbcType=INTEGER}
+	</sql>
+	<sql id="Common_Delete_Value">
+		`update_time`=#{updateTime,jdbcType=TIMESTAMP},
+		`update_user_id`=#{updateUserId,jdbcType=BIGINT},
+		`delete_flag` =
+		${@com.wuyi.constant.DeleteConst@DELETE},
+		`version` =
+		`version`+1
+	</sql>
+	<sql id="Common_Batch_Delete_Value">
+		`update_time`=#{updateTime,jdbcType=TIMESTAMP},
+		`update_user_id`=#{updateUserId,jdbcType=BIGINT},
+		`delete_flag` =
+		${@com.wuyi.constant.DeleteConst@DELETE},
+		`version` =
+		`version`+1
+	</sql>
+	<sql id="Common_Update_Value">
+		`update_time`=#{updateTime,jdbcType=TIMESTAMP},
+		`update_user_id`=#{updateUserId,jdbcType=BIGINT},
+		`version` =
+		`version`+1
+	</sql>
+	<sql id="Common_Column_List">
+		`create_time`,`create_user_id`,`update_time`,`update_user_id`,`delete_flag`,`version`
+	</sql>
+	<sql id="Common_Normal_Condition">
+		`delete_flag`=${@com.wuyi.constant.DeleteConst@NORMAL}
+	</sql>
+	<sql id="Common_Delete_Condition">
+		`delete_flag`=${@com.wuyi.constant.DeleteConst@DELETE}
+	</sql>
+</mapper>

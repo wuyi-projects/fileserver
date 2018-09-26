@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+        http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-4.3.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd"
+	default-autowire="no">
+
+	<!-- 数据字典后置拦截器 -->
+	<bean id="sysDictionaryInterceptor" class="com.wuyi.common.interceptor.SysDictionaryInterceptor" />
+
+	<aop:config>
+		<aop:pointcut id="baseDaoGetMethod"
+			expression="execution(* com.wuyi.core.dao.impl.BaseDaoImpl.get*(..))" />
+		<aop:pointcut id="baseDaoListMethod"
+			expression="execution(* com.wuyi.core.dao.impl.BaseDaoImpl.list*(..))" />
+
+		<aop:advisor pointcut-ref="baseDaoGetMethod" advice-ref="sysDictionaryInterceptor" />
+		<aop:advisor pointcut-ref="baseDaoListMethod" advice-ref="sysDictionaryInterceptor" />
+	</aop:config>
+
+</beans>
