@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +35,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.wuyi.core.controller.BaseController;
+import com.wuyi.file.constant.FileServerPathConst;
 import com.wuyi.file.dto.FileInfoDTO;
 import com.wuyi.file.model.FileInfo;
 import com.wuyi.file.service.FileInfoService;
@@ -48,8 +48,8 @@ import com.wuyi.util.format.json.RequestJson;
 import com.wuyi.util.format.json.StatusEnum;
 
 /**
- * @author WuYi Technology
- * @company 物一（武汉）网络技术有限公司
+ * @author 张自强
+ * @company 武汉东日科技有限公司
  *
  * @date 2018年3月18日上午2:32:40
  * @version 1.0.0
@@ -72,11 +72,10 @@ public class FileUploadController extends BaseController {
 	public Map<String, Object> upload(@RequestParam("file") MultipartFile uploadFile)
 			throws Exception {
 
-		String rootPath = "E:/ftp/file";
 		try {
 
 			String originalFilename = uploadFile.getOriginalFilename();
-			FileInfo fileInfo = generatorPathAndFileName(rootPath, originalFilename);
+			FileInfo fileInfo = generatorPathAndFileName(FileServerPathConst.FILE_SERVER_ROOT_PATH, originalFilename);
 
 			InputStream is = uploadFile.getInputStream();
 			String sha256Str = DigestUtils.sha256Hex(is);
@@ -84,7 +83,7 @@ public class FileUploadController extends BaseController {
 			fileInfo.setSize(uploadFile.getSize());
 			fileInfoService.save(fileInfo);
 
-			uploadFile.transferTo(new File(rootPath + fileInfo.getPath()));
+			uploadFile.transferTo(new File(FileServerPathConst.FILE_SERVER_ROOT_PATH + fileInfo.getPath()));
 
 			return RequestJson.pack(StatusEnum.SUCCEESS, fileInfo.getUniqueId());
 		} catch (IllegalStateException e) {
@@ -96,14 +95,13 @@ public class FileUploadController extends BaseController {
 	@RequestMapping("/multiUpload")
 	@ResponseBody
 	public Map<String, Object> multiUpload(@RequestParam("files") MultipartFile[] uploadFiles) {
-		String rootPath = "E:/ftp/file";
 		try {
 			List<String> list = new ArrayList<String>();
 			List<FileInfo> fileInfoList = new ArrayList<FileInfo>();
 			FileInfo fileInfo = null;
 			for (MultipartFile uploadFile : uploadFiles) {
 
-				fileInfo = generatorPathAndFileName(rootPath, uploadFile.getOriginalFilename());
+				fileInfo = generatorPathAndFileName(FileServerPathConst.FILE_SERVER_ROOT_PATH, uploadFile.getOriginalFilename());
 				list.add(fileInfo.getUniqueId());
 
 				InputStream is = uploadFile.getInputStream();
@@ -112,7 +110,7 @@ public class FileUploadController extends BaseController {
 				fileInfo.setSize(uploadFile.getSize());
 				fileInfoList.add(fileInfo);
 
-				uploadFile.transferTo(new File(rootPath + fileInfo.getPath()));
+				uploadFile.transferTo(new File(FileServerPathConst.FILE_SERVER_ROOT_PATH + fileInfo.getPath()));
 			}
 			fileInfoService.batchSave(fileInfoList);
 			return RequestJson.pack(StatusEnum.SUCCEESS, list);
@@ -130,13 +128,12 @@ public class FileUploadController extends BaseController {
 	public Map<String, Object> uploadImage(@RequestParam("file") MultipartFile uploadFile)
 			throws Exception {
 
-		String rootPath = "E:/ftp/image";
 		try {
 			FileType fileType = FileTypeUtil.getFileType(uploadFile.getInputStream());
 			if (fileType == FileType.JPEG || fileType == FileType.PNG || fileType == FileType.BMP
 					|| fileType == FileType.TIFF || fileType == FileType.GIF) {
 
-				FileInfo fileInfo = generatorPathAndFileNameWithoutType(rootPath,
+				FileInfo fileInfo = generatorPathAndFileNameWithoutType(FileServerPathConst.IMAGE_SERVER_ROOT_PATH,
 						uploadFile.getOriginalFilename());
 
 				InputStream is = uploadFile.getInputStream();
@@ -145,7 +142,7 @@ public class FileUploadController extends BaseController {
 				fileInfo.setFingerprint(sha256Str);
 				fileInfo.setSize(uploadFile.getSize());
 
-				uploadFile.transferTo(new File(rootPath + fileInfo.getPath()));
+				uploadFile.transferTo(new File(FileServerPathConst.IMAGE_SERVER_ROOT_PATH + fileInfo.getPath()));
 
 				fileInfoService.save(fileInfo);
 				return RequestJson.pack(StatusEnum.SUCCEESS, fileInfo.getUniqueId());
@@ -161,7 +158,6 @@ public class FileUploadController extends BaseController {
 	@ResponseBody
 	public Map<String, Object> multiUploadImage(@RequestParam("files") MultipartFile[] uploadFiles) {
 
-		String rootPath = "E:/ftp/image";
 		try {
 			List<String> list = new ArrayList<String>();
 			List<FileInfo> fileInfoList = new ArrayList<FileInfo>();
@@ -172,7 +168,7 @@ public class FileUploadController extends BaseController {
 						|| fileType == FileType.BMP || fileType == FileType.TIFF
 						|| fileType == FileType.GIF) {
 
-					fileInfo = generatorPathAndFileNameWithoutType(rootPath,
+					fileInfo = generatorPathAndFileNameWithoutType(FileServerPathConst.IMAGE_SERVER_ROOT_PATH,
 							uploadFile.getOriginalFilename());
 					list.add(fileInfo.getUniqueId());
 
@@ -183,7 +179,7 @@ public class FileUploadController extends BaseController {
 					fileInfo.setSize(uploadFile.getSize());
 					fileInfoList.add(fileInfo);
 
-					uploadFile.transferTo(new File(rootPath + fileInfo.getPath()));
+					uploadFile.transferTo(new File(FileServerPathConst.IMAGE_SERVER_ROOT_PATH + fileInfo.getPath()));
 				}
 			}
 			fileInfoService.batchSave(fileInfoList);
@@ -207,11 +203,9 @@ public class FileUploadController extends BaseController {
 	@RequestMapping("/download")
 	public ResponseEntity<byte[]> download(String uid) throws IOException {
 
-		String rootPath = "E:/ftp/file";
-
 		FileInfoDTO fileInfoDTO = fileInfoService.getByUniqueId(uid);
 
-		File file = new File(rootPath, fileInfoDTO.getPath());
+		File file = new File(FileServerPathConst.FILE_SERVER_ROOT_PATH, fileInfoDTO.getPath());
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 		headers.setContentDispositionFormData("attachment", fileInfoDTO.getUniqueId()
@@ -233,10 +227,9 @@ public class FileUploadController extends BaseController {
 	@RequestMapping(value = "/image")
 	public void image(String uid) throws IOException {
 
-		String rootPath = "E:/ftp/image";
 		FileInfoDTO fileInfoDTO = fileInfoService.getByUniqueId(uid);
 
-		File filePath = new File(rootPath + Constants.SEPARATOR_COMMON_DIRECTORY
+		File filePath = new File(FileServerPathConst.IMAGE_SERVER_ROOT_PATH + Constants.SEPARATOR_COMMON_DIRECTORY
 				+ fileInfoDTO.getPath());
 		if (filePath.exists()) {
 			BufferedImage image = ImageIO.read(new FileInputStream(filePath));
@@ -262,13 +255,12 @@ public class FileUploadController extends BaseController {
 	public Map<String, Object> uploadImageForCKEditor(
 			@RequestParam("upfile") MultipartFile uploadFile) throws Exception {
 
-		String rootPath = "E:/ftp/image";
 		try {
 			FileType fileType = FileTypeUtil.getFileType(uploadFile.getInputStream());
 			if (fileType == FileType.JPEG || fileType == FileType.PNG || fileType == FileType.BMP
 					|| fileType == FileType.TIFF || fileType == FileType.GIF) {
 
-				FileInfo fileInfo = generatorPathAndFileNameWithoutType(rootPath,
+				FileInfo fileInfo = generatorPathAndFileNameWithoutType(FileServerPathConst.IMAGE_SERVER_ROOT_PATH,
 						uploadFile.getOriginalFilename());
 
 				InputStream is = uploadFile.getInputStream();
@@ -277,25 +269,12 @@ public class FileUploadController extends BaseController {
 				fileInfo.setFingerprint(sha256Str);
 				fileInfo.setSize(uploadFile.getSize());
 
-				uploadFile.transferTo(new File(rootPath + fileInfo.getPath()));
+				uploadFile.transferTo(new File(FileServerPathConst.IMAGE_SERVER_ROOT_PATH + fileInfo.getPath()));
 
 				fileInfoService.save(fileInfo);
 
-				InetAddress addr = (InetAddress) InetAddress.getLocalHost();
-				// 获取本机IP
-				String localIP = addr.getHostAddress().toString();
-
-				// String baseUrl = request.getScheme() + "://" +
-				// request.getServerName() + ":"
-				// + request.getServerPort();
-				String baseUrl = request.getScheme() + "://" + localIP + ":"
-						+ request.getServerPort();
 				Map<String, Object> result = new HashMap<String, Object>();
-				// result.put("uploaded", 1);
-				// result.put("url", baseUrl + "/wuyi_file/file/image?uid=" +
-				// fileInfo.getUniqueId());
 				result.put("state", "SUCCESS");
-//				result.put("url", baseUrl + "/wuyi_file/file/image?uid=" + fileInfo.getUniqueId());
 				result.put("url", "/wuyi_file/file/image?uid=" + fileInfo.getUniqueId());
 				return result;
 			}

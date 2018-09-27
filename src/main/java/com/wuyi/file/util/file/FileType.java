@@ -7,8 +7,8 @@
 package com.wuyi.file.util.file;
 
 /**
- * @author WuYi Technology
- * @company 物一（武汉）网络技术有限公司
+ * @author 张自强
+ * @company 武汉东日科技有限公司
  *
  * @date 2018年8月31日上午11:14:30
  * @version 1.0.0

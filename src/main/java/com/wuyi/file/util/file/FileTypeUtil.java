@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * @author WuYi Technology
- * @company 物一（武汉）网络技术有限公司
+ * @author 张自强
+ * @company 武汉东日科技有限公司
  *
  * @date 2018年8月31日上午11:15:09
  * @version 1.0.0

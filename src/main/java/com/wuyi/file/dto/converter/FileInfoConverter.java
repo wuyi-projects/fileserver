@@ -9,8 +9,8 @@ import com.wuyi.file.model.FileInfo;
 /**
  * 文件信息转换类
  *
- * @author WuYi Automatic Code Generator
- * @company 物一（武汉）网络技术有限公司
+ * @author 张自强
+ * @company 武汉东日科技有限公司
  *
  * @date 2018年08月31日 15:06:17
  * @version 1.0.0
